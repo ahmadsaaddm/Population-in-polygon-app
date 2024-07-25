@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <title>Map Application</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-draw@1.0.4/dist/leaflet.draw.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <style>
+        html, body {width: 100%; height: 100%; margin: 0; padding: 0;}
+        #map {position: absolute; top: 0; bottom: 0; right: 0; left: 0;}
+        #result {position: absolute; bottom: 10px; left: 10px; z-index: 999; color: black; background-color: white; padding: 5px;}
+        #export-button {position: absolute; top: 10px; right: 10px; z-index: 999;}
+    </style>
+</head>
+<body>
+    <div id="map" style="width: 100%; height: 100%;"></div>
+    <div id="result"></div>
+    <button id="export-button" class="btn btn-primary">Export GeoJSON</button>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+    <script>
+        var map = L.map('map').setView([51.505, -0.09], 13);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        var drawnItems = new L.FeatureGroup().addTo(map);
+
+        var drawControl = new L.Control.Draw({
+            draw: {
+                polygon: true,
+                rectangle: false,
+                circle: false,
+                marker: false,
+                polyline: false
+            },
+            edit: {
+                featureGroup: drawnItems
+            }
+        }).addTo(map);
+
+        map.on(L.Draw.Event.CREATED, function (e) {
+            var layer = e.layer;
+            drawnItems.addLayer(layer);
+        });
+
+        document.getElementById('export-button').onclick = function () {
+            var data = drawnItems.toGeoJSON();
+            var resultDiv = document.getElementById('result');
+
+            console.log("Export button clicked. Sending GeoJSON data to the backend.");
+            resultDiv.innerText = "Processing...";
+
+            fetch('/process_geojson', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Received response from the backend:", data);
+                if (data.error) {
+                    resultDiv.innerText = "Error: " + data.error;
+                } else {
+                    resultDiv.innerText = "Total population in the selected area: " + data.total_population;
+                }
+            })
+            .catch(error => {
+                console.error("An error occurred:", error);
+                resultDiv.innerText = "An error occurred: " + error.message;
+            });
+        };
+    </script>
+</body>
+</html>
