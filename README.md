@@ -44,6 +44,10 @@ This repository contains a simple map application built with folium and a backen
 - Use the drawing tools to draw a polygon on the map.
 - Click the "Export GeoJSON" button to send the drawn polygon data to the backend and fetch population data.
 
+##Example
+![WhatsApp Image 2024-07-25 at 20 47 07_22e5e533](https://github.com/user-attachments/assets/38d11ae3-f346-4183-8753-e6d69e1111aa)
+
+
 ## Acknowledgments
 
 - [Leaflet.js](https://leafletjs.com/)
