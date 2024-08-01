@@ -1,6 +1,7 @@
 # Map Application
 
 This repository contains a simple map application built with folium and a backend API to process GeoJSON polygon file . The application allows users to draw polygons on a map and fetch population data for the selected area.
+Due to database storage restrictions only some country's datasets were loaded and the user can procceed to select a country and the interface will zoom in there. if a polygon is drawn where data is not found, 0 is returned
 
 
 
@@ -11,7 +12,6 @@ This repository contains a simple map application built with folium and a backen
 - Python 3.x
 - Flask
 - Folium
-- Bootstrap 5
 
 ### Installation
 
@@ -23,7 +23,7 @@ This repository contains a simple map application built with folium and a backen
 
 2. Install the required Python packages:
     ```bash
-    pip install flask
+    pip install flask Folium geopandas shapely pandas
     ```
 
 ### Running the Application
